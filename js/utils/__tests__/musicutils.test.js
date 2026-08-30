@@ -1852,6 +1852,42 @@ describe("getModePattern", () => {
     });
 });
 
+describe("generateNoteNames", () => {
+    // Regression for #8347: small EDOs (< 7, excluding the special-cased 5)
+    // previously returned 7 entries because zero-step naturals were not skipped.
+    it.each([2, 3, 4, 6])("returns exactly %i names for %i-EDO (regression #8347)", edo => {
+        const names = generateNoteNames(edo);
+        expect(names.length).toBe(edo);
+    });
+
+    // Special-cased EDOs must still be correct.
+    it("returns 5 names for 5-EDO (pentatonic special case)", () => {
+        expect(generateNoteNames(5)).toEqual(["C", "D", "E", "G", "A"]);
+    });
+
+    it("returns 7 natural letters for 7-EDO", () => {
+        expect(generateNoteNames(7)).toEqual(["C", "D", "E", "F", "G", "A", "B"]);
+    });
+
+    it("returns 12 chromatic names for 12-EDO", () => {
+        expect(generateNoteNames(12).length).toBe(12);
+        expect(generateNoteNames(12)[0]).toBe("C");
+    });
+
+    // General invariant: length must always equal edo.
+    it.each(Array.from({ length: 31 }, (_, i) => i + 1))(
+        "names.length === %i for every EDO from 1 to 31",
+        edo => {
+            expect(generateNoteNames(edo).length).toBe(edo);
+        }
+    );
+
+    // The first entry must always be "C".
+    it.each([2, 3, 4, 6, 8, 9, 10, 11])("first note is always C for %i-EDO", edo => {
+        expect(generateNoteNames(edo)[0]).toBe("C");
+    });
+});
+
 describe("buildScale with explicit EDO", () => {
     it.each([
         [19, [3, 3, 2, 3, 3, 3, 2]],

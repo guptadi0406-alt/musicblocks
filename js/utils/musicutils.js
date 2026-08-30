@@ -1036,6 +1036,10 @@ function generateNoteNames(edo) {
         const nextNatural = naturals[(n + 1) % 7];
         const edoSteps = intervals[n].steps;
 
+        // Skip naturals that received zero steps in the Bresenham distribution.
+        // This keeps names.length === edo for every EDO, as the JSDoc contract requires.
+        if (edoSteps === 0) continue;
+
         names.push(natural);
 
         const numAccidentals = edoSteps - 1;
